@@ -1,0 +1,27 @@
+# STANDBY. Runs once a day while seatwatch is dormant.
+# Only checks whether a watch_terms schedule (e.g. Spring 2027) has posted → Telegram alert.
+# ~30 Actions minutes/month. Stops itself once SEATWATCH_ACTIVE = true.
+name: standby
+on:
+  schedule: [{cron: "17 13 * * *"}]   # ~9:17am ET daily
+  workflow_dispatch:
+permissions: {contents: write}
+concurrency: {group: seatwatch, cancel-in-progress: false}
+jobs:
+  standby:
+    if: vars.SEATWATCH_ACTIVE != 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - run: pip install -r requirements.txt
+      - run: python seatwatch.py --standby
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      - name: persist state
+        if: always()
+        run: |
+          git config user.name bot; git config user.email bot@users.noreply.github.com
+          git add -f state.json && git commit -m "standby state [skip ci]" && git pull --rebase && git push || true

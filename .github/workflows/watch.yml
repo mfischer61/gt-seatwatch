@@ -1,11 +1,16 @@
-# Free cloud runner. GitHub cron min = 5 min and often delayed — use a VPS/Pi for <1 min.
+# ACTIVE polling. Off until repo variable SEATWATCH_ACTIVE = true.
+#   Activate:   gh variable set SEATWATCH_ACTIVE --body true
+#   Deactivate: gh variable set SEATWATCH_ACTIVE --body false
+# Skipped jobs use no Actions minutes.
 name: seatwatch
 on:
-  schedule: [{cron: "*/5 * * * *"}]
+  schedule: [{cron: "*/15 * * * *"}]
   workflow_dispatch:
 permissions: {contents: write}
+concurrency: {group: seatwatch, cancel-in-progress: false}
 jobs:
   run:
+    if: vars.SEATWATCH_ACTIVE == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -13,7 +18,11 @@ jobs:
         with: {python-version: "3.12"}
       - run: pip install -r requirements.txt
       - run: python seatwatch.py --once
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
       - name: persist state
+        if: always()
         run: |
           git config user.name bot; git config user.email bot@users.noreply.github.com
-          git add -f state.json && git commit -m "state" && git push || true
+          git add -f state.json && git commit -m "state [skip ci]" && git pull --rebase && git push || true
