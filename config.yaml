@@ -1,0 +1,31 @@
+# Term code YYYYSS: 02 = Spring, 05 = Summer, 08 = Fall
+term: 202608
+
+# Alert when these exact sections get a seat (or waitlist spot)
+crns:
+  - 80346      # ECE 2040 A (full right now — good test)
+  - 93974      # ECE 2040 E
+
+# Alert on ANY new section of these courses (+ seats opening in any section)
+courses:
+  - ECE 2040
+  - CS 2110
+
+# Alert the moment a future term's schedule appears in Banner
+watch_terms:
+  - 202702     # Spring 2027
+
+waitlist_alerts: true      # also alert when a waitlist spot opens on a full section
+course_seat_alerts: true   # seat alerts for every section of `courses`
+interval_seconds: 60       # keep >= 30; be polite to GT servers
+state_file: state.json
+
+notify:
+  ntfy_topic: gt-seatwatch-CHANGE-ME-random123   # free phone push: install "ntfy" app, subscribe to this topic
+  discord_webhook: ""
+  pushover_user: ""
+  pushover_token: ""
+  email:
+    to: ""               # e.g. you@gmail.com, or 1234567890@txt.att.net for SMS
+    user: ""
+    app_password: ""     # Gmail app password, not your real password
