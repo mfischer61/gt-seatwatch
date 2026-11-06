@@ -133,9 +133,19 @@ def esc(t):
     return t.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
 
-def notify(title, body, pre=False):
+URGENT_MARKS = ("🟢", "🟡 WAITLIST")   # seat open / waitlist spot open = act now
+
+
+def level_for(ev):
+    return "urgent" if any(e.startswith(URGENT_MARKS) for e in ev) else "info"
+
+
+def notify(title, body, pre=False, level="urgent"):
+    """level: urgent  → Telegram + email + ntfy(urgent) + Discord   (act now)
+              summary → Telegram only                             (daily heartbeat, /status)
+              info    → ntfy low priority only                    (FULL, seat freed behind waitlist)"""
     title = MODE["prefix"] + title
-    print(f"\n🔔 {title}\n{body}\n", flush=True)
+    print(f"\n🔔 [{level}] {title}\n{body}\n", flush=True)
     if MODE["dry"]:
         return
     n = dict(CFG.get("notify", {}) or {})
@@ -146,7 +156,7 @@ def notify(title, body, pre=False):
         e_cfg[k] = os.environ.get(env) or e_cfg.get(k)
     n["email"] = e_cfg
     tok, chat = tg_creds()
-    if tok and chat:
+    if tok and chat and level in ("urgent", "summary"):
         text = f"<b>{esc(title)}</b>\n" + (f"<pre>{esc(body)}</pre>" if pre else esc(body))
         try:
             r = requests.post(f"https://api.telegram.org/bot{tok}/sendMessage", json={
@@ -155,17 +165,18 @@ def notify(title, body, pre=False):
                 timeout=10)
             if not r.ok: print("telegram failed:", r.text)
         except Exception as e: print("telegram failed:", e)
-    if n.get("ntfy_topic"):
+    if n.get("ntfy_topic") and level in ("urgent", "info"):
         try:
             requests.post(f'https://ntfy.sh/{n["ntfy_topic"]}', data=body.encode(),
                           headers={"Title": title.encode("utf-8").decode("latin-1", "ignore"),
-                                   "Priority": "urgent", "Tags": "rotating_light", "Click": REG_URL}, timeout=10)
+                                   "Priority": "urgent" if level == "urgent" else "low",
+                                   "Tags": "rotating_light" if level == "urgent" else "information_source", "Click": REG_URL}, timeout=10)
         except Exception as e: print("ntfy failed:", e)
-    if n.get("discord_webhook"):
+    if n.get("discord_webhook") and level == "urgent":
         try:
             requests.post(n["discord_webhook"], json={"content": f"**{title}**\n{body}"}, timeout=10)
         except Exception as e: print("discord failed:", e)
-    if (n.get("email") or {}).get("to"):
+    if (n.get("email") or {}).get("to") and level == "urgent":
         e = n["email"]
         try:
             msg = EmailMessage(); msg["Subject"] = title; msg["From"] = e["user"]; msg["To"] = e["to"]
@@ -203,8 +214,12 @@ def seat_events(prev, cur, waitlist_alerts, any_change):
         ev.append(f'🟢 OPEN SEAT — {cur["seats"]} available. Register now.')
     elif cur["seats"] > 0 and cur["wl_count"] > 0 and prev["seats"] <= 0:
         ev.append(f'🟡 Seat freed, but {cur["wl_count"]} on waitlist (they get it first).')
-    if waitlist_alerts and cur["seats"] <= 0 and cur["wl_seats"] > 0 and prev["wl_seats"] <= 0:
-        ev.append(f'🟡 WAITLIST SPOT — {cur["wl_seats"]} open. Join waitlist.')
+    if waitlist_alerts and cur["seats"] <= 0 and cur["wl_seats"] > 0 and cur["wl_seats"] > prev["wl_seats"]:
+        if prev["wl_seats"] <= 0:
+            ev.append(f'🟡 WAITLIST SPOT — {cur["wl_seats"]} open. Join waitlist.')
+        else:   # more spots: waitlist expanded (cap raised) or someone left it
+            why = f' (WL cap {prev["wl_cap"]}→{cur["wl_cap"]})' if cur["wl_cap"] > prev["wl_cap"] else ""
+            ev.append(f'🟡 WAITLIST SPOTS UP — {prev["wl_seats"]}→{cur["wl_seats"]} open{why}. Join waitlist.')
     if was_open and cur["seats"] <= 0:
         ev.append("🔴 Section now FULL.")
     d = [f"{lbl} {prev[k]}→{cur[k]}" for k, lbl in FIELDS if prev.get(k) != cur.get(k)]
@@ -256,7 +271,7 @@ def handle_telegram_commands(api, st):
         if str(m.get("chat", {}).get("id")) == str(chat) and (m.get("text") or "").startswith("/status"):
             want = True
     if want:
-        notify("📊 Current seats", status_text(snapshot(api, str(CFG["term"]))), pre=True)
+        notify("📊 Current seats", status_text(snapshot(api, str(CFG["term"]))), pre=True, level="summary")
 
 
 def check_terms(api, st):
@@ -284,7 +299,7 @@ def run_once(api, st):
         cur["name"] = label or (prev or {}).get("name") or api.course_of(term, crn)
         ev = seat_events(prev, cur, wl, CFG.get("alert_on_any_change", True))
         if ev:
-            notify(f'{cur["name"]} · CRN {crn}', "\n".join(ev) + "\n" + now_line(cur))
+            notify(f'{cur["name"]} · CRN {crn}', "\n".join(ev) + "\n" + now_line(cur), level=level_for(ev))
         st["crns"][crn] = cur
         time.sleep(random.uniform(0.3, 1.0))
 
@@ -305,7 +320,7 @@ def run_once(api, st):
                         ev = seat_events(known[crn], s, wl, CFG.get("course_any_change", False))
                         if ev:
                             notify(f"{s['course']} {s['section']} · CRN {crn}",
-                                   f"{s['title']} · {s['instructor']}\n{s['times']}\n" + "\n".join(ev))
+                                   f"{s['title']} · {s['instructor']}\n{s['times']}\n" + "\n".join(ev), level=level_for(ev))
         st["courses"][key] = secs
         time.sleep(random.uniform(0.3, 1.0))
 
@@ -316,7 +331,7 @@ def run_once(api, st):
     if h is not None and now.hour >= int(h) and st.get("last_summary") != now.date().isoformat():
         st["last_summary"] = now.date().isoformat()
         snap = {c: st["crns"].get(c) for c in watched_crns()}
-        notify(f"📊 Daily seat summary · {now:%a %b %d}", status_text(snap) + "\n(SeatWatch is alive)", pre=True)
+        notify(f"📊 Daily seat summary · {now:%a %b %d}", status_text(snap) + "\n(SeatWatch is alive)", pre=True, level="summary")
 
 
 # --------------------------------------------------------------- Simulation
@@ -381,7 +396,7 @@ def simulate(api):
         print(f"  {c}: new section CRN 99999 appears")
     print("\n—— Alerts you would get ——")
     run_once(SimBanner(api, cur, course_secs), st)
-    notify("📊 Current seats (REAL data)", status_text(real), pre=True)
+    notify("📊 Current seats (REAL data)", status_text(real), pre=True, level="summary")
     print("(dry run — nothing sent; add --send to push these to Telegram)" if MODE["dry"] else "(sent to Telegram)")
 
 
@@ -446,7 +461,7 @@ def main():
     if "--simulate" in a: return simulate(api)
     if "--status" in a:
         MODE["dry"] = "--send" not in a
-        return notify("📊 Current seats", status_text(snapshot(api, str(CFG["term"]))), pre=True)
+        return notify("📊 Current seats", status_text(snapshot(api, str(CFG["term"]))), pre=True, level="summary")
 
     st = load_state()
     if "--standby" in a:                 # dormant mode: only watch for new term schedules
