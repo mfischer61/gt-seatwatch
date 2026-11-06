@@ -301,7 +301,7 @@ def run_once(api, st):
                        f"{s['title']}\nCRN {crn} · {s['instructor']}\n{s['times']}\n{now_line(s)}")
             if CFG.get("course_seat_alerts", True):
                 for crn, s in secs.items():
-                    if crn in known:
+                    if crn in known and crn not in watched_crns():   # CRN loop already alerts these
                         ev = seat_events(known[crn], s, wl, CFG.get("course_any_change", False))
                         if ev:
                             notify(f"{s['course']} {s['section']} · CRN {crn}",
