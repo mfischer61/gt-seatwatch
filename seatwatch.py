@@ -138,7 +138,13 @@ def notify(title, body, pre=False):
     print(f"\n🔔 {title}\n{body}\n", flush=True)
     if MODE["dry"]:
         return
-    n = CFG.get("notify", {})
+    n = dict(CFG.get("notify", {}) or {})
+    # env vars / GitHub secrets override config.yaml (keep secrets out of the repo)
+    n["ntfy_topic"] = os.environ.get("NTFY_TOPIC") or n.get("ntfy_topic")
+    e_cfg = dict(n.get("email") or {})
+    for k, env in (("to", "EMAIL_TO"), ("user", "EMAIL_USER"), ("app_password", "EMAIL_APP_PASSWORD")):
+        e_cfg[k] = os.environ.get(env) or e_cfg.get(k)
+    n["email"] = e_cfg
     tok, chat = tg_creds()
     if tok and chat:
         text = f"<b>{esc(title)}</b>\n" + (f"<pre>{esc(body)}</pre>" if pre else esc(body))
@@ -152,7 +158,8 @@ def notify(title, body, pre=False):
     if n.get("ntfy_topic"):
         try:
             requests.post(f'https://ntfy.sh/{n["ntfy_topic"]}', data=body.encode(),
-                          headers={"Title": title, "Priority": "high", "Click": REG_URL}, timeout=10)
+                          headers={"Title": title.encode("utf-8").decode("latin-1", "ignore"),
+                                   "Priority": "urgent", "Tags": "rotating_light", "Click": REG_URL}, timeout=10)
         except Exception as e: print("ntfy failed:", e)
     if n.get("discord_webhook"):
         try:
@@ -447,6 +454,10 @@ def main():
         print(time.strftime("%H:%M:%S"), "standby check done", flush=True)
         return
     interval = CFG.get("interval_seconds", 60)
+    # --minutes N : loop for N minutes then exit (GitHub Actions near-real-time mode)
+    stop_at = None
+    if "--minutes" in a:
+        stop_at = time.time() + float(a[a.index("--minutes") + 1]) * 60
     while True:
         try:
             first = not st["crns"]
@@ -463,6 +474,7 @@ def main():
                 save_state(st); sys.exit(1)
         save_state(st)
         if "--once" in a: break
+        if stop_at and time.time() + interval >= stop_at: break
         time.sleep(interval + random.uniform(0, interval * 0.2))
 
 

@@ -2,25 +2,31 @@
 #   Activate:   gh variable set SEATWATCH_ACTIVE --body true
 #   Deactivate: gh variable set SEATWATCH_ACTIVE --body false
 # Skipped jobs use no Actions minutes.
+# Repo MUST be public: ~1,350 runner-min/day. Private free tier (2,000/mo) dies in ~1.5 days.
 name: seatwatch
 on:
-  schedule: [{cron: "*/15 * * * *"}]
+  schedule: [{cron: "*/15 * * * *"}]   # each run polls every ~60s for 14 min
   workflow_dispatch:
 permissions: {contents: write}
 concurrency: {group: seatwatch, cancel-in-progress: false}
 jobs:
   run:
-    if: vars.SEATWATCH_ACTIVE == 'true' || github.event_name == 'workflow_dispatch'
+    if: (vars.SEATWATCH_ACTIVE == 'true' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: {python-version: "3.12"}
       - run: pip install -r requirements.txt
-      - run: python seatwatch.py --once
+      - run: python seatwatch.py --minutes 14
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_APP_PASSWORD: ${{ secrets.EMAIL_APP_PASSWORD }}
       - name: persist state
         if: always()
         run: |

@@ -1,23 +1,22 @@
 # Term code YYYYSS: 02 = Spring, 05 = Summer, 08 = Fall
-term: 202608
+term: 202702
 
-# Sections to watch — CRN: label
+# Sections to watch — CRN: label   (Spring 2027, set 2026-11-05)
 crns:
-  83179: ECE 2040 C
-  80782: ECE 2031 L03
-  83433: ECE 2031 B
-  90893: CS 2050 FAD
-  93971: ECE 2035 D
-  93973: ECE 2035 DL
-  92330: ISYE 3770 T15
+  27885: ECE 3600 A (Cyber req) TR 5:00-6:15 Ji
+  28262: ECE 4117 A (Cyber elec) TR 3:30-4:45 Saltaformaggio (+lab 28263) — thread-restricted until Dec 21 noon
+  23934: ECE 4180 A (CHEA elec) MW 3:30-4:45 Fratta (+lab 26776)
+  24324: ECE 4180 B (CHEA elec) TR 3:30-4:45 Fratta (+lab 27083)
 
 # Whole courses: alert on NEW sections (+ seats opening in any section)
-courses: []
-#  - ECE 2040
+courses:
+  - ECE 3600
+  - ECE 4117
+  - ECE 4180
 
 # Alert the moment a future term's schedule appears
 watch_terms:
-  - 202702     # Spring 2027
+  - 202708     # Fall 2027
 
 waitlist_alerts: true        # alert when a waitlist spot opens on a full section
 alert_on_any_change: true    # CRNs: alert on ANY seat/waitlist count change
