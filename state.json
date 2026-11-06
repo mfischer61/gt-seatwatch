@@ -4,9 +4,9 @@
    "seats": 0,
    "enrolled": 100,
    "cap": 100,
-   "wl_seats": 0,
-   "wl_count": 20,
-   "wl_cap": 20,
+   "wl_seats": 15,
+   "wl_count": 25,
+   "wl_cap": 40,
    "name": "ECE 3600 A (Cyber req) TR 5:00-6:15 Ji"
   },
   "28262": {
@@ -22,18 +22,18 @@
    "seats": 0,
    "enrolled": 75,
    "cap": 75,
-   "wl_seats": 0,
-   "wl_count": 25,
-   "wl_cap": 25,
+   "wl_seats": 6,
+   "wl_count": 34,
+   "wl_cap": 40,
    "name": "ECE 4180 A (CHEA elec) MW 3:30-4:45 Fratta (+lab 26776)"
   },
   "24324": {
-   "seats": 1,
-   "enrolled": 74,
+   "seats": 0,
+   "enrolled": 75,
    "cap": 75,
-   "wl_seats": 0,
-   "wl_count": 25,
-   "wl_cap": 25,
+   "wl_seats": 5,
+   "wl_count": 35,
+   "wl_cap": 40,
    "name": "ECE 4180 B (CHEA elec) TR 3:30-4:45 Fratta (+lab 27083)"
   }
  },
@@ -46,9 +46,9 @@
     "seats": 0,
     "enrolled": 100,
     "cap": 100,
-    "wl_seats": 0,
-    "wl_count": 20,
-    "wl_cap": 20,
+    "wl_seats": 16,
+    "wl_count": 24,
+    "wl_cap": 40,
     "instructor": "Ji, Chuanyi",
     "times": "TR 1700-1815"
    }
@@ -89,9 +89,9 @@
     "seats": 0,
     "enrolled": 75,
     "cap": 75,
-    "wl_seats": 0,
-    "wl_count": 25,
-    "wl_cap": 25,
+    "wl_seats": 7,
+    "wl_count": 33,
+    "wl_cap": 40,
     "instructor": "Fratta, Diego",
     "times": "MW 1530-1645"
    },
@@ -112,12 +112,12 @@
     "course": "ECE 4180",
     "section": "B",
     "title": "Embedded Systems Design",
-    "seats": 1,
-    "enrolled": 74,
+    "seats": 0,
+    "enrolled": 75,
     "cap": 75,
-    "wl_seats": 0,
-    "wl_count": 25,
-    "wl_cap": 25,
+    "wl_seats": 5,
+    "wl_count": 35,
+    "wl_cap": 40,
     "instructor": "Fratta, Diego",
     "times": "TR 1530-1645"
    },
@@ -125,8 +125,8 @@
     "course": "ECE 4180",
     "section": "BL",
     "title": "Embedded Systems Design",
-    "seats": 1,
-    "enrolled": 74,
+    "seats": 0,
+    "enrolled": 75,
     "cap": 75,
     "wl_seats": 0,
     "wl_count": 0,
@@ -140,5 +140,6 @@
   "202702"
  ],
  "errors": 0,
- "term": "202702"
+ "term": "202702",
+ "last_summary": "2026-11-06"
 }
