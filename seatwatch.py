@@ -203,8 +203,15 @@ FIELDS = (("seats", "open seats"), ("enrolled", "enrolled"), ("cap", "capacity")
           ("wl_count", "waitlist"), ("wl_cap", "WL capacity"))
 
 
-def seat_events(prev, cur, waitlist_alerts, any_change):
-    """Alert lines for prev → cur. First sighting (prev None) is a silent baseline."""
+def on_waitlist(name):
+    """True if name ('ECE 4180 B ...') belongs to a course listed under on_waitlist in config."""
+    return any((name or "").startswith(c) for c in CFG.get("on_waitlist") or [])
+
+
+def seat_events(prev, cur, waitlist_alerts, any_change, waitlisted=False):
+    """Alert lines for prev → cur. First sighting (prev None) is a silent baseline.
+    waitlisted=True: you're already on this course's waitlist → no waitlist-spot alerts,
+    and a freed seat is urgent (waitlist moving = your offer may be coming)."""
     if prev is None:
         return []
     ev = []
@@ -213,8 +220,12 @@ def seat_events(prev, cur, waitlist_alerts, any_change):
     if now_open and not was_open:
         ev.append(f'🟢 OPEN SEAT — {cur["seats"]} available. Register now.')
     elif cur["seats"] > 0 and cur["wl_count"] > 0 and prev["seats"] <= 0:
-        ev.append(f'🟡 Seat freed, but {cur["wl_count"]} on waitlist (they get it first).')
-    if waitlist_alerts and cur["seats"] <= 0 and cur["wl_seats"] > 0 and cur["wl_seats"] > prev["wl_seats"]:
+        if waitlisted:
+            ev.append(f'🟢 SEAT FREED — waitlist moving ({cur["wl_count"]} on it). '
+                      f'Check GT email for a waitlist offer; register before it expires.')
+        else:
+            ev.append(f'🟡 Seat freed, but {cur["wl_count"]} on waitlist (they get it first).')
+    if waitlist_alerts and not waitlisted and cur["seats"] <= 0 and cur["wl_seats"] > 0 and cur["wl_seats"] > prev["wl_seats"]:
         if prev["wl_seats"] <= 0:
             ev.append(f'🟡 WAITLIST SPOT — {cur["wl_seats"]} open. Join waitlist.')
         else:   # more spots: waitlist expanded (cap raised) or someone left it
@@ -297,7 +308,7 @@ def run_once(api, st):
             print(f"CRN {crn}: no data (wrong term or CRN?)"); continue
         prev = st["crns"].get(crn)
         cur["name"] = label or (prev or {}).get("name") or api.course_of(term, crn)
-        ev = seat_events(prev, cur, wl, CFG.get("alert_on_any_change", True))
+        ev = seat_events(prev, cur, wl, CFG.get("alert_on_any_change", True), on_waitlist(cur["name"]))
         if ev:
             notify(f'{cur["name"]} · CRN {crn}', "\n".join(ev) + "\n" + now_line(cur), level=level_for(ev))
         st["crns"][crn] = cur
@@ -317,7 +328,7 @@ def run_once(api, st):
             if CFG.get("course_seat_alerts", True):
                 for crn, s in secs.items():
                     if crn in known and crn not in watched_crns():   # CRN loop already alerts these
-                        ev = seat_events(known[crn], s, wl, CFG.get("course_any_change", False))
+                        ev = seat_events(known[crn], s, wl, CFG.get("course_any_change", False), on_waitlist(s["course"]))
                         if ev:
                             notify(f"{s['course']} {s['section']} · CRN {crn}",
                                    f"{s['title']} · {s['instructor']}\n{s['times']}\n" + "\n".join(ev), level=level_for(ev))

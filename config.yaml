@@ -18,6 +18,11 @@ courses:
 watch_terms:
   - 202708     # Fall 2027
 
+# Courses you're already waitlisted in: no waitlist-spot alerts; freed seat = urgent
+on_waitlist:
+  - ECE 3600
+  - ECE 4180
+
 waitlist_alerts: true        # alert when a waitlist spot opens on a full section
 alert_on_any_change: false   # count-only changes (waitlist 13→14 etc.) = no alert
 course_seat_alerts: true     # courses: alert when a section opens
