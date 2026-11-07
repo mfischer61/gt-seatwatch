@@ -8,10 +8,25 @@ on:
   schedule: [{cron: "*/30 * * * *"}]   # backup only — GitHub delays cron by hours; the chain step below keeps it running
   workflow_dispatch:
 permissions: {contents: write, actions: write}
-concurrency: {group: seatwatch, cancel-in-progress: false}
 jobs:
+  # Backup cron only starts polling if the self-chain died. Otherwise it exits as
+  # "skipped" (no "run cancelled" emails from GitHub).
+  guard:
+    runs-on: ubuntu-latest
+    outputs: {go: "${{ steps.g.outputs.go }}"}
+    steps:
+      - id: g
+        env: {GH_TOKEN: "${{ github.token }}"}
+        run: |
+          if [ "${{ github.event_name }}" != "schedule" ]; then echo go=true >> $GITHUB_OUTPUT; exit 0; fi
+          n=$(gh run list -R ${{ github.repository }} -w watch.yml --json databaseId,status \
+              --jq '[.[] | select(.databaseId != ${{ github.run_id }} and (.status=="in_progress" or .status=="queued" or .status=="pending" or .status=="waiting"))] | length')
+          echo "other active runs: $n"
+          [ "$n" = "0" ] && echo go=true >> $GITHUB_OUTPUT || echo go=false >> $GITHUB_OUTPUT
   run:
-    if: (vars.SEATWATCH_ACTIVE == 'true' || github.event_name == 'workflow_dispatch')
+    needs: guard
+    if: needs.guard.outputs.go == 'true' && (vars.SEATWATCH_ACTIVE == 'true' || github.event_name == 'workflow_dispatch')
+    concurrency: {group: seatwatch, cancel-in-progress: false}
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:

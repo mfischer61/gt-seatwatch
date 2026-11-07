@@ -39,7 +39,8 @@ CFG = yaml.safe_load((HERE / "config.yaml").read_text(encoding="utf-8"))
 STATE_FILE = HERE / CFG.get("state_file", "state.json")
 TZ = ZoneInfo(CFG.get("timezone", "America/New_York"))
 UA = {"User-Agent": "gt-seatwatch/1.1 (personal seat alert)"}
-MODE = {"dry": False, "prefix": ""}   # used by --simulate
+MODE = {"dry": False, "prefix": ""}
+FAIL_ALERT_AFTER = int(CFG.get("fail_alert_after", 10))   # consecutive failed checks before alerting
 
 
 def tg_creds():
@@ -488,13 +489,17 @@ def main():
         try:
             first = not st["crns"]
             run_once(api, st)
+            if st["errors"] >= FAIL_ALERT_AFTER:
+                notify("✅ SeatWatch recovered", f'Back online after {st["errors"]} failed checks.', level="summary")
             st["errors"] = 0
             print(time.strftime("%H:%M:%S"), "checked" + (" (baseline saved — alerts start next check)" if first else ""), flush=True)
         except Exception as e:
             st["errors"] += 1
             print("error:", e, flush=True)
-            if st["errors"] == 3:
-                notify("⚠️ SeatWatch failing", f"3 checks in a row failed.\nLast error: {e}")
+            if st["errors"] == FAIL_ALERT_AFTER:   # ~10 min of failures, not a brief Banner blip
+                notify("⚠️ SeatWatch failing", f"{FAIL_ALERT_AFTER} checks in a row failed (~{FAIL_ALERT_AFTER} min).\n"
+                       f"Usually GT Banner down/maintenance; you'll get ✅ when it recovers.\nLast error: {type(e).__name__}: {str(e)[:200]}",
+                       level="summary")
             api = Banner()
             if "--once" in a:
                 save_state(st); sys.exit(1)
