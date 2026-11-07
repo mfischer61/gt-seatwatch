@@ -4,8 +4,8 @@
    "seats": 0,
    "enrolled": 100,
    "cap": 100,
-   "wl_seats": 8,
-   "wl_count": 32,
+   "wl_seats": 7,
+   "wl_count": 33,
    "wl_cap": 40,
    "name": "ECE 3600 A (Cyber req) TR 5:00-6:15 Ji"
   },
@@ -46,8 +46,8 @@
     "seats": 0,
     "enrolled": 100,
     "cap": 100,
-    "wl_seats": 8,
-    "wl_count": 32,
+    "wl_seats": 7,
+    "wl_count": 33,
     "wl_cap": 40,
     "instructor": "Ji, Chuanyi",
     "times": "TR 1700-1815"
