@@ -4,8 +4,8 @@
    "seats": 0,
    "enrolled": 100,
    "cap": 100,
-   "wl_seats": 2,
-   "wl_count": 38,
+   "wl_seats": 0,
+   "wl_count": 40,
    "wl_cap": 40,
    "name": "ECE 3600 A (Cyber req) TR 5:00-6:15 Ji"
   },
@@ -13,8 +13,8 @@
    "seats": 0,
    "enrolled": 50,
    "cap": 50,
-   "wl_seats": 17,
-   "wl_count": 13,
+   "wl_seats": 16,
+   "wl_count": 14,
    "wl_cap": 30,
    "name": "ECE 4117 A (Cyber elec) TR 3:30-4:45 Saltaformaggio (+lab 28263) \u2014 thread-restricted until Dec 21 noon"
   },
@@ -46,8 +46,8 @@
     "seats": 0,
     "enrolled": 100,
     "cap": 100,
-    "wl_seats": 2,
-    "wl_count": 38,
+    "wl_seats": 0,
+    "wl_count": 40,
     "wl_cap": 40,
     "instructor": "Ji, Chuanyi",
     "times": "TR 1700-1815"
@@ -61,8 +61,8 @@
     "seats": 0,
     "enrolled": 50,
     "cap": 50,
-    "wl_seats": 17,
-    "wl_count": 13,
+    "wl_seats": 16,
+    "wl_count": 14,
     "wl_cap": 30,
     "instructor": "Saltaformaggio, Brendan",
     "times": "TR 1530-1645"
@@ -133,6 +133,168 @@
     "wl_cap": 0,
     "instructor": "Fratta, Diego",
     "times": "TBA"
+   }
+  },
+  "202702:ECE 3058": {
+   "28256": {
+    "course": "ECE 3058",
+    "section": "A",
+    "title": "Architecture, Systems, Concurrency, and Energy in Computation",
+    "seats": 9,
+    "enrolled": 141,
+    "cap": 150,
+    "wl_seats": 30,
+    "wl_count": 0,
+    "wl_cap": 30,
+    "instructor": "Brothers, Tim",
+    "times": "TR 0800-0915"
+   },
+   "28257": {
+    "course": "ECE 3058",
+    "section": "AL",
+    "title": "Architecture, Systems, Concurrency, and Energy in Computation",
+    "seats": 9,
+    "enrolled": 141,
+    "cap": 150,
+    "wl_seats": 0,
+    "wl_count": 0,
+    "wl_cap": 0,
+    "instructor": "Brothers, Tim",
+    "times": "TBA"
+   },
+   "35531": {
+    "course": "ECE 3058",
+    "section": "R",
+    "title": "Architecture, Systems, Concurrency, and Energy in Computation",
+    "seats": 23,
+    "enrolled": 7,
+    "cap": 30,
+    "wl_seats": 0,
+    "wl_count": 0,
+    "wl_cap": 0,
+    "instructor": "Brothers, Tim",
+    "times": "TR 1400-1515"
+   },
+   "35532": {
+    "course": "ECE 3058",
+    "section": "RL",
+    "title": "Architecture, Systems, Concurrency, and Energy in Computation",
+    "seats": 23,
+    "enrolled": 7,
+    "cap": 30,
+    "wl_seats": 0,
+    "wl_count": 0,
+    "wl_cap": 0,
+    "instructor": "Brothers, Tim",
+    "times": "TBA"
+   }
+  },
+  "202702:ECE 3030": {
+   "26114": {
+    "course": "ECE 3030",
+    "section": "A",
+    "title": "Physical Foundations of Computer Engineering",
+    "seats": 0,
+    "enrolled": 100,
+    "cap": 100,
+    "wl_seats": 44,
+    "wl_count": 6,
+    "wl_cap": 50,
+    "instructor": "Narayanan, Vijaykrishnan",
+    "times": "TR 1400-1515"
+   }
+  },
+  "202702:PHIL 3109": {
+   "32178": {
+    "course": "PHIL 3109",
+    "section": "CC",
+    "title": "Engineering Ethics",
+    "seats": 7,
+    "enrolled": 173,
+    "cap": 180,
+    "wl_seats": 20,
+    "wl_count": 0,
+    "wl_cap": 20,
+    "instructor": "Clinkenbeard, Cayla",
+    "times": "MW 0930-1020"
+   },
+   "32179": {
+    "course": "PHIL 3109",
+    "section": "CC1",
+    "title": "Engineering Ethics",
+    "seats": 1,
+    "enrolled": 29,
+    "cap": 30,
+    "wl_seats": 0,
+    "wl_count": 0,
+    "wl_cap": 0,
+    "instructor": "Clinkenbeard, Cayla",
+    "times": "F 0825-0915"
+   },
+   "32180": {
+    "course": "PHIL 3109",
+    "section": "CC2",
+    "title": "Engineering Ethics",
+    "seats": 6,
+    "enrolled": 24,
+    "cap": 30,
+    "wl_seats": 0,
+    "wl_count": 0,
+    "wl_cap": 0,
+    "instructor": "Clinkenbeard, Cayla",
+    "times": "F 0825-0915"
+   },
+   "32181": {
+    "course": "PHIL 3109",
+    "section": "CC3",
+    "title": "Engineering Ethics",
+    "seats": 0,
+    "enrolled": 30,
+    "cap": 30,
+    "wl_seats": 0,
+    "wl_count": 0,
+    "wl_cap": 0,
+    "instructor": "Clinkenbeard, Cayla",
+    "times": "F 0930-1020"
+   },
+   "32182": {
+    "course": "PHIL 3109",
+    "section": "CC4",
+    "title": "Engineering Ethics",
+    "seats": 0,
+    "enrolled": 30,
+    "cap": 30,
+    "wl_seats": 0,
+    "wl_count": 0,
+    "wl_cap": 0,
+    "instructor": "Clinkenbeard, Cayla",
+    "times": "F 0930-1020"
+   },
+   "32183": {
+    "course": "PHIL 3109",
+    "section": "CC5",
+    "title": "Engineering Ethics",
+    "seats": 0,
+    "enrolled": 30,
+    "cap": 30,
+    "wl_seats": 0,
+    "wl_count": 0,
+    "wl_cap": 0,
+    "instructor": "Clinkenbeard, Cayla",
+    "times": "F 1100-1150"
+   },
+   "32184": {
+    "course": "PHIL 3109",
+    "section": "CC6",
+    "title": "Engineering Ethics",
+    "seats": 0,
+    "enrolled": 30,
+    "cap": 30,
+    "wl_seats": 0,
+    "wl_count": 0,
+    "wl_cap": 0,
+    "instructor": "Clinkenbeard, Cayla",
+    "times": "F 1100-1150"
    }
   }
  },
