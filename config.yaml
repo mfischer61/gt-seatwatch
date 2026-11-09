@@ -22,6 +22,27 @@ enrolled:
   ECE 3030: 26114    # A TR 2:00-3:15 Narayanan
   PHIL 3109: 32178   # CC MW 9:30-10:20 Clinkenbeard
 
+# Registration date reminders → Telegram + email once at `at` (ET). Skipped if >6h late.
+reminders:
+  - at: "2026-11-13 11:45"
+    title: ECE 3005 opens at noon
+    msg: "Senior hold lifts at NOON. Register ECE 3005 A CRN 26857 (WF 11:00). Backup C 34811 (WF 9:30). B clashes with 3058."
+  - at: "2026-11-23 13:30"
+    title: Waitlists pause 5:30 PM
+    msg: "Waitlist offers pause 5:30 PM today until Nov 30 9 AM. Accept any pending offer (ECE 3600 / ECE 4180) now."
+  - at: "2026-11-30 08:55"
+    title: Waitlists resume 9 AM
+    msg: "Waitlist offers resume 9 AM. Watch GT email; offers expire. ECE 3600 27885 / ECE 4180."
+  - at: "2026-12-16 09:00"
+    title: Phase I ends tomorrow
+    msg: "Phase I ends Dec 17/18; waitlists pause Dec 18 9 AM. Finalize Spring 2027 schedule in OSCAR."
+  - at: "2026-12-17 09:00"
+    title: Phase I ends today
+    msg: "Last Phase I day. Confirm Spring 2027 schedule in OSCAR."
+  - at: "2026-12-21 11:45"
+    title: Thread restrictions lift at noon
+    msg: "NOON: add Cybersecurity thread in OSCAR (drop DSSD), then register ECE 4117 A 28262 + lab 28263."
+
 # Alert the moment a future term's schedule appears
 watch_terms:
   - 202708     # Fall 2027

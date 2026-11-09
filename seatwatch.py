@@ -144,7 +144,8 @@ def level_for(ev):
 def notify(title, body, pre=False, level="urgent"):
     """level: urgent  → Telegram + email + ntfy(urgent) + Discord   (act now)
               summary → Telegram only                             (daily heartbeat, /status)
-              info    → ntfy low priority only                    (FULL, seat freed behind waitlist)"""
+              info    → ntfy low priority only                    (FULL, seat freed behind waitlist)
+              reminder→ Telegram + email                          (registration date reminders)"""
     title = MODE["prefix"] + title
     print(f"\n🔔 [{level}] {title}\n{body}\n", flush=True)
     if MODE["dry"]:
@@ -157,7 +158,7 @@ def notify(title, body, pre=False, level="urgent"):
         e_cfg[k] = os.environ.get(env) or e_cfg.get(k)
     n["email"] = e_cfg
     tok, chat = tg_creds()
-    if tok and chat and level in ("urgent", "summary"):
+    if tok and chat and level in ("urgent", "summary", "reminder"):
         text = f"<b>{esc(title)}</b>\n" + (f"<pre>{esc(body)}</pre>" if pre else esc(body))
         try:
             r = requests.post(f"https://api.telegram.org/bot{tok}/sendMessage", json={
@@ -177,7 +178,7 @@ def notify(title, body, pre=False, level="urgent"):
         try:
             requests.post(n["discord_webhook"], json={"content": f"**{title}**\n{body}"}, timeout=10)
         except Exception as e: print("discord failed:", e)
-    if (n.get("email") or {}).get("to") and level == "urgent":
+    if (n.get("email") or {}).get("to") and level in ("urgent", "reminder"):
         e = n["email"]
         try:
             msg = EmailMessage(); msg["Subject"] = title; msg["From"] = e["user"]; msg["To"] = e["to"]
@@ -347,6 +348,22 @@ def check_terms(api, st):
                    f"gh variable set SEATWATCH_ACTIVE --body true")
 
 
+def check_reminders(st):
+    """config reminders: [{at: "2026-11-13 11:45", msg: "..."}] → Telegram + email once, when due.
+    Skips anything more than 6h overdue (e.g. watcher was off) so you don't get stale pings."""
+    sent = st.setdefault("reminders_sent", [])
+    now = datetime.now(TZ)
+    for r in CFG.get("reminders") or []:
+        key = f'{r["at"]}|{r["msg"][:40]}'
+        if key in sent:
+            continue
+        at = datetime.strptime(str(r["at"]), "%Y-%m-%d %H:%M").replace(tzinfo=TZ)
+        if at <= now:
+            sent.append(key)
+            if (now - at).total_seconds() <= 6 * 3600:
+                notify(f"⏰ {r.get('title', 'Registration reminder')}", r["msg"], level="reminder")
+
+
 def run_once(api, st):
     term = str(CFG["term"])
     wl = CFG.get("waitlist_alerts", True)
@@ -354,6 +371,7 @@ def run_once(api, st):
         st.update(term=term, crns={}, courses={})
 
     check_terms(api, st)
+    check_reminders(st)
 
     for crn, label in watched_crns().items():
         cur = api.enrollment(term, crn)
@@ -523,6 +541,11 @@ def selftest(api):
         assert clashes("TR 1400-1515", {"x": "MW 1400-1515", "y": "TR 1515-1630"}) == []
         return "open / baseline / no-change / clash cases"
     check("Alert logic unit checks", logic)
+    def rem():
+        for r in CFG.get("reminders") or []:
+            datetime.strptime(str(r["at"]), "%Y-%m-%d %H:%M"); assert r["msg"]
+        return f'{len(CFG.get("reminders") or [])} reminders parse'
+    check("Reminder config", rem)
     print("\nALL GOOD" if ok else "\nFix the FAIL lines above."); return ok
 
 
@@ -549,7 +572,7 @@ def main():
 
     st = load_state()
     if "--standby" in a:                 # dormant mode: only watch for new term schedules
-        check_terms(api, st); save_state(st)
+        check_terms(api, st); check_reminders(st); save_state(st)
         print(time.strftime("%H:%M:%S"), "standby check done", flush=True)
         return
     interval = CFG.get("interval_seconds", 60)
