@@ -204,6 +204,58 @@ FIELDS = (("seats", "open seats"), ("enrolled", "enrolled"), ("cap", "capacity")
           ("wl_count", "waitlist"), ("wl_cap", "WL capacity"))
 
 
+def enrolled_courses():
+    """config enrolled: {"ECE 3058": 28256, ...} — courses you're registered in → your CRN."""
+    return {str(k): str(v) for k, v in (CFG.get("enrolled") or {}).items()}
+
+
+def _slots(times):
+    """'TR 1400-1515; F 0825-0915' → [(day, start_min, end_min), ...]"""
+    out = []
+    for days, a, b in re.findall(r"([MTWRFSU]+) (\d{4})-(\d{4})", times or ""):
+        m = lambda t: int(t[:2]) * 60 + int(t[2:])
+        out += [(d, m(a), m(b)) for d in days]
+    return out
+
+
+def clashes(times, others):
+    """Names of other enrolled sections whose meetings overlap `times`."""
+    mine = _slots(times)
+    return [name for name, t in others.items()
+            if any(d1 == d2 and a1 < b2 and a2 < b1 for d1, a1, b1 in mine for d2, a2, b2 in _slots(t))]
+
+
+def alt_section_alerts(term, course, my_crn, known, secs, st):
+    """Courses you're already in: alert on new sections (other time/prof) + prof/time changes."""
+    mine = secs.get(my_crn) or (known or {}).get(my_crn) or {}
+    yours = f"Yours: {mine.get('section', '?')} · {mine.get('instructor', '?')} · {mine.get('times', '?')}"
+    # times of your other registered sections, for conflict check
+    others = {}
+    for c, crn in enrolled_courses().items():
+        if c != course:
+            d = (st["courses"].get(f"{term}:{c}") or {}).get(crn)
+            if d: others[f"{c} {d['section']}"] = d["times"]
+    if known is None:
+        return
+    for crn in sorted(set(secs) - set(known)):
+        s = secs[crn]
+        cl = clashes(s["times"], others)
+        fit = f"⚠️ Clashes with {', '.join(cl)}" if cl else "✅ No clash with your other classes"
+        notify(f"🔀 New {s['course']} section {s['section']} (you're in {mine.get('section', '?')})",
+               f"{s['title']}\nCRN {crn} · {s['instructor']} · {s['times']}\n{now_line(s)}\n{yours}\n{fit}\n"
+               f"Swap: check 'Conditional Add and Drop' in Banner so you keep yours if the add fails.")
+    for crn, s in secs.items():
+        p = known.get(crn)
+        if p and (p["instructor"], p["times"]) != (s["instructor"], s["times"]):
+            ch = []
+            if p["instructor"] != s["instructor"]: ch.append(f"prof {p['instructor']} → {s['instructor']}")
+            if p["times"] != s["times"]: ch.append(f"time {p['times']} → {s['times']}")
+            tag = " (YOUR section)" if crn == my_crn else ""
+            notify(f"✏️ {s['course']} {s['section']} changed{tag}",
+                   f"CRN {crn}: " + "; ".join(ch) + f"\n{now_line(s)}\n{yours}",
+                   level="urgent" if crn == my_crn else "summary")
+
+
 def on_waitlist(name):
     """True if name ('ECE 4180 B ...') belongs to a course listed under on_waitlist in config."""
     return any((name or "").startswith(c) for c in CFG.get("on_waitlist") or [])
@@ -315,7 +367,17 @@ def run_once(api, st):
         st["crns"][crn] = cur
         time.sleep(random.uniform(0.3, 1.0))
 
+    enrolled = enrolled_courses()
+    for c in enrolled:                  # courses you're in: watch for better sections
+        key = f"{term}:{c}"
+        secs = api.sections(term, *c.split())
+        if not secs: continue
+        alt_section_alerts(term, c, enrolled[c], st["courses"].get(key), secs, st)
+        st["courses"][key] = secs
+        time.sleep(random.uniform(0.3, 1.0))
+
     for c in CFG.get("courses") or []:
+        if c in enrolled: continue      # handled above (no seat-noise for courses you're in)
         subj, num = c.split()
         key = f"{term}:{subj} {num}"
         secs = api.sections(term, subj, num)
@@ -388,7 +450,7 @@ def simulate(api):
     term = str(CFG["term"])
     print("Fetching real data...", flush=True)
     real = {c: d for c, d in snapshot(api, term).items() if d}
-    st = {"crns": {}, "courses": {}, "terms": [str(t) for t in CFG.get("watch_terms") or []],
+    st = {"term": term, "crns": {}, "courses": {}, "terms": [str(t) for t in CFG.get("watch_terms") or []],
           "errors": 0, "last_summary": datetime.now(TZ).date().isoformat(), "tg_offset": 0}
     cur = {}
     print("\nScenarios:")
@@ -406,6 +468,14 @@ def simulate(api):
                     instructor="Simulated Prof", times="TR 0930-1045")
         course_secs[c] = {**secs, "99999": fake}
         print(f"  {c}: new section CRN 99999 appears")
+    for c in enrolled_courses():
+        secs = api.sections(term, *c.split())
+        st["courses"][f"{term}:{c}"] = secs
+        fake = dict(next(iter(secs.values()))) if secs else {"course": c, "title": "?", "cap": 30, "wl_cap": 10}
+        fake.update(section="ZZ", seats=30, enrolled=0, cap=30, wl_count=0, wl_seats=10,
+                    instructor="Simulated Prof", times="MW 1100-1215")
+        course_secs[c] = {**secs, "99998": fake}
+        print(f"  {c} (enrolled): new section CRN 99998 appears")
     print("\n—— Alerts you would get ——")
     run_once(SimBanner(api, cur, course_secs), st)
     notify("📊 Current seats (REAL data)", status_text(real), pre=True, level="summary")
@@ -449,7 +519,9 @@ def selftest(api):
         assert any("OPEN" in e for e in seat_events(a, {**a, "seats": 1, "enrolled": 9}, True, True))
         assert seat_events(None, a, True, True) == []
         assert seat_events(a, a, True, True) == []
-        return "open / baseline / no-change cases"
+        assert clashes("TR 1400-1515", {"x": "TR 1430-1600"}) == ["x"]
+        assert clashes("TR 1400-1515", {"x": "MW 1400-1515", "y": "TR 1515-1630"}) == []
+        return "open / baseline / no-change / clash cases"
     check("Alert logic unit checks", logic)
     print("\nALL GOOD" if ok else "\nFix the FAIL lines above."); return ok
 
