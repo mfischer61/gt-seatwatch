@@ -14,6 +14,14 @@ courses:
   - ECE 4117
   - ECE 4180
 
+# Courses you're REGISTERED in → your CRN. Alerts (no seat noise):
+#   🔀 new section appears (other time/prof) — urgent, with clash check vs your other classes
+#   ✏️ prof/time change on your section (urgent) or another section (Telegram only)
+enrolled:
+  ECE 3058: 28256    # A TR 8:00-9:15 Brothers (lab AL 28257)
+  ECE 3030: 26114    # A TR 2:00-3:15 Narayanan
+  PHIL 3109: 32178   # CC MW 9:30-10:20 Clinkenbeard
+
 # Alert the moment a future term's schedule appears
 watch_terms:
   - 202708     # Fall 2027
