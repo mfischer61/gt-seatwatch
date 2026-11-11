@@ -212,8 +212,8 @@
     "seats": 0,
     "enrolled": 180,
     "cap": 180,
-    "wl_seats": 20,
-    "wl_count": 0,
+    "wl_seats": 19,
+    "wl_count": 1,
     "wl_cap": 20,
     "instructor": "Clinkenbeard, Cayla",
     "times": "MW 0930-1020"
