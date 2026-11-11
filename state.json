@@ -115,8 +115,8 @@
     "seats": 0,
     "enrolled": 75,
     "cap": 75,
-    "wl_seats": 2,
-    "wl_count": 38,
+    "wl_seats": 0,
+    "wl_count": 40,
     "wl_cap": 40,
     "instructor": "Fratta, Diego",
     "times": "TR 1530-1645"
