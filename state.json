@@ -1,8 +1,8 @@
 {
  "crns": {
   "27885": {
-   "seats": 0,
-   "enrolled": 100,
+   "seats": 1,
+   "enrolled": 99,
    "cap": 100,
    "wl_seats": 0,
    "wl_count": 40,
