@@ -28,11 +28,11 @@
    "name": "ECE 4180 A (CHEA elec) MW 3:30-4:45 Fratta (+lab 26776)"
   },
   "24324": {
-   "seats": 1,
-   "enrolled": 74,
+   "seats": 0,
+   "enrolled": 75,
    "cap": 75,
-   "wl_seats": 0,
-   "wl_count": 40,
+   "wl_seats": 2,
+   "wl_count": 38,
    "wl_cap": 40,
    "name": "ECE 4180 B (CHEA elec) TR 3:30-4:45 Fratta (+lab 27083)"
   }
