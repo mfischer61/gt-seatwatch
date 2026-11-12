@@ -1,8 +1,8 @@
 {
  "crns": {
   "27885": {
-   "seats": 1,
-   "enrolled": 99,
+   "seats": 2,
+   "enrolled": 98,
    "cap": 100,
    "wl_seats": 0,
    "wl_count": 40,
@@ -13,8 +13,8 @@
    "seats": 0,
    "enrolled": 50,
    "cap": 50,
-   "wl_seats": 14,
-   "wl_count": 16,
+   "wl_seats": 13,
+   "wl_count": 17,
    "wl_cap": 30,
    "name": "ECE 4117 A (Cyber elec) TR 3:30-4:45 Saltaformaggio (+lab 28263) \u2014 thread-restricted until Dec 21 noon"
   },
