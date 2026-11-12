@@ -19,8 +19,8 @@
    "name": "ECE 4117 A (Cyber elec) TR 3:30-4:45 Saltaformaggio (+lab 28263) \u2014 thread-restricted until Dec 21 noon"
   },
   "23934": {
-   "seats": 0,
-   "enrolled": 75,
+   "seats": 1,
+   "enrolled": 74,
    "cap": 75,
    "wl_seats": 0,
    "wl_count": 40,
@@ -43,11 +43,11 @@
     "course": "ECE 3600",
     "section": "A",
     "title": "Computer Communications",
-    "seats": 2,
-    "enrolled": 98,
+    "seats": 1,
+    "enrolled": 99,
     "cap": 100,
-    "wl_seats": 1,
-    "wl_count": 39,
+    "wl_seats": 2,
+    "wl_count": 38,
     "wl_cap": 40,
     "instructor": "Ji, Chuanyi",
     "times": "TR 1700-1815"
