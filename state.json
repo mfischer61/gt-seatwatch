@@ -46,8 +46,8 @@
     "seats": 2,
     "enrolled": 98,
     "cap": 100,
-    "wl_seats": 0,
-    "wl_count": 40,
+    "wl_seats": 1,
+    "wl_count": 39,
     "wl_cap": 40,
     "instructor": "Ji, Chuanyi",
     "times": "TR 1700-1815"
