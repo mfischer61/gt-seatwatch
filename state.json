@@ -4,8 +4,8 @@
    "seats": 2,
    "enrolled": 98,
    "cap": 100,
-   "wl_seats": 0,
-   "wl_count": 40,
+   "wl_seats": 1,
+   "wl_count": 39,
    "wl_cap": 40,
    "name": "ECE 3600 A (Cyber req) TR 5:00-6:15 Ji"
   },
