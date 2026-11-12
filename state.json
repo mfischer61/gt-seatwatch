@@ -1,11 +1,11 @@
 {
  "crns": {
   "27885": {
-   "seats": 2,
-   "enrolled": 98,
+   "seats": 1,
+   "enrolled": 99,
    "cap": 100,
-   "wl_seats": 1,
-   "wl_count": 39,
+   "wl_seats": 2,
+   "wl_count": 38,
    "wl_cap": 40,
    "name": "ECE 3600 A (Cyber req) TR 5:00-6:15 Ji"
   },
@@ -303,6 +303,6 @@
  ],
  "errors": 0,
  "term": "202702",
- "last_summary": "2026-11-11",
+ "last_summary": "2026-11-12",
  "reminders_sent": []
 }
