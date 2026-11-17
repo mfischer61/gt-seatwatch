@@ -34,6 +34,8 @@ jobs:
       - uses: actions/setup-python@v5
         with: {python-version: "3.12"}
       - run: pip install -r requirements.txt
+      - name: restore state (from 'state' branch)
+        run: git fetch -q --depth=1 origin state && git show FETCH_HEAD:state.json > state.json || echo "no saved state yet"
       - run: python seatwatch.py --minutes 50
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
@@ -42,11 +44,15 @@ jobs:
           EMAIL_TO: ${{ secrets.EMAIL_TO }}
           EMAIL_USER: ${{ secrets.EMAIL_USER }}
           EMAIL_APP_PASSWORD: ${{ secrets.EMAIL_APP_PASSWORD }}
-      - name: persist state
+      - name: persist state (to 'state' branch, keeps main history clean)
         if: always()
         run: |
+          [ -f state.json ] || exit 0
           git config user.name bot; git config user.email bot@users.noreply.github.com
-          git add -f state.json && git commit -m "state [skip ci]" && git pull --rebase && git push || true
+          blob=$(git hash-object -w state.json)
+          tree=$(printf '100644 blob %s\tstate.json\n' "$blob" | git mktree)
+          c=$(git commit-tree "$tree" -m "state [skip ci]")
+          git push -q -f origin "$c:refs/heads/state" || true
       - name: chain next run (continuous polling)
         if: always() && vars.SEATWATCH_ACTIVE == 'true'
         env: {GH_TOKEN: "${{ github.token }}"}
