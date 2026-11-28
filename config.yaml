@@ -7,12 +7,14 @@ crns:
   28262: ECE 4117 A (Cyber elec) TR 3:30-4:45 Saltaformaggio (+lab 28263) — thread-restricted until Dec 21 noon
   23934: ECE 4180 A (CHEA elec) MW 3:30-4:45 Fratta (+lab 26776)
   24324: ECE 4180 B (CHEA elec) TR 3:30-4:45 Fratta (+lab 27083)
+  34814: ECE 3150 B (CHEA req) MW 5:00 Bhattacharya (+lab 34815) — seniors-only; target Dec 21 noon (IC path → ECE 4130 Fall 2027)
 
 # Whole courses: alert on NEW sections (+ seats opening in any section)
 courses:
   - ECE 3600
   - ECE 4117
   - ECE 4180
+  - ECE 3150
 
 # Courses you're REGISTERED in → your CRN. Alerts (no seat noise):
 #   🔀 new section appears (other time/prof) — urgent, with clash check vs your other classes
@@ -21,6 +23,7 @@ enrolled:
   ECE 3058: 28256    # A TR 8:00-9:15 Brothers (lab AL 28257)
   ECE 3030: 26114    # A TR 2:00-3:15 Narayanan
   PHIL 3109: 32178   # CC MW 9:30-10:20 Clinkenbeard
+  ECE 3005: 26857    # A WF 11:00 Bourgeois
 
 # Registration date reminders → Telegram + email once at `at` (ET). Skipped if >6h late.
 reminders:
@@ -41,7 +44,7 @@ reminders:
     msg: "Last Phase I day. Confirm Spring 2027 schedule in OSCAR."
   - at: "2026-12-21 11:45"
     title: Thread restrictions lift at noon
-    msg: "NOON: add Cybersecurity thread in OSCAR (drop DSSD), then register ECE 4117 A 28262 + lab 28263."
+    msg: "NOON: add Cybersecurity thread in OSCAR (drop DSSD). Register ECE 3150 B 34814 + lab 34815 first (19 cr → drop VIP 27255 or use overload). Backup: ECE 4117 A 28262 + lab 28263."
 
 # Alert the moment a future term's schedule appears
 watch_terms:
